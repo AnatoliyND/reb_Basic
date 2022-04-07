@@ -55,9 +55,6 @@ func readLines(path string) ([]string, error) {
 func checkingAnEmptyField(i int, arr []string) (err error) {
 	for _, item := range arr {
 		if len(item) < 1 {
-
-			//defer panic("")
-			//defer fmt.Printf("\nparse error: empty field on string %d: \n", i+1)
 			panic(fmt.Sprintf("parse error: empty field on string %d ", i+1))
 		}
 	}
