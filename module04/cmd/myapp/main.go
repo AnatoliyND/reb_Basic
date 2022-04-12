@@ -10,7 +10,7 @@ func main() {
 
 	price := 750
 
-	cust.ResDiscount()
+	cust.CalcDiscount()
 	fmt.Printf("%+v\n", cust)
 	fmt.Println(internal.CalcPrice(*cust, price))
 }
