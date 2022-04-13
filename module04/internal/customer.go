@@ -12,6 +12,10 @@ type Customer struct {
 	//CalcDiscount func() (int, error)
 }
 
+type Discounter interface {
+	CalcDiscount() (int, error)
+}
+
 const DEFAULT_DISCOUNT = 500
 
 func NewCustomer(name string, age int, balance int, debt int, discount bool) *Customer {
@@ -25,7 +29,7 @@ func NewCustomer(name string, age int, balance int, debt int, discount bool) *Cu
 }
 
 func (c *Customer) CalcDiscount() (int, error) {
-
+  
 	if !c.discount {
 		return 0, errors.New("Discount not available")
 	}
@@ -41,16 +45,29 @@ func (c *Customer) CalcDiscount() (int, error) {
 func (c *Customer) ResDiscount() error {
 
 	if !c.discount {
-		return errors.New("Discount not available")
+		return 0, errors.New("Discount not available")
 	}
 	c.resDiscount = DEFAULT_DISCOUNT - c.Debt
 	if c.resDiscount < 0 {
 		c.Debt = c.Debt - DEFAULT_DISCOUNT
 		c.resDiscount = 0
 	}
-	return nil
+	return c.resDiscount, nil
 }
 */
+/*04_02
+cust.CalcDiscount = func() (int, error) {
+	if !cust.Discount {
+		return 0, errors.New("Discount not available")
+	}
+	result := DEFAULT_DISCOUNT - cust.Debt
+	if result < 0 {
+		return 0, nil
+	}
+	return result, nil
+} */
+
+
 /*
 	cust.CalcDiscount = func() (int, error) {
 		if !cust.Discount {
@@ -62,3 +79,4 @@ func (c *Customer) ResDiscount() error {
 		}
 		return result, nil
 	} */
+
