@@ -3,39 +3,46 @@ package internal
 import "errors"
 
 type Customer struct {
+	*Overduer
 	Name        string
 	Age         int
-	Balance     int
-	Debt        int
 	discount    bool
 	resDiscount int
+
+	//Balance     int
+	//Debt        int
 	//CalcDiscount func() (int, error)
 }
 
+type Overduer struct {
+	Balans int
+	Debt   int
+}
+
 type Debtor interface {
-	CalcDiscount() error
+	WrOffDebt() error
 }
 
 const DEFAULT_DISCOUNT = 500
 
-func NewCustomer(name string, age int, balance int, debt int, discount bool) *Customer {
+func NewCustomer(name string, age int, discount bool) *Customer {
 	return &Customer{
 		Name:     name,
 		Age:      age,
-		Balance:  balance,
-		Debt:     debt,
 		discount: discount,
+		//Balance:  balance,
+		//Debt:     debt,
 	}
 }
 
-func (c *Customer) CalcDiscount() error {
+func (c *Customer) WrOffDebt() error {
 
 	if !c.discount {
 		return errors.New("Discount not available")
 	}
-	c.resDiscount = DEFAULT_DISCOUNT - c.Debt
+	c.resDiscount = DEFAULT_DISCOUNT - c.Overduer.Debt
 	if c.resDiscount < 0 {
-		c.Debt = c.Debt - DEFAULT_DISCOUNT
+		c.Overduer.Debt = c.Overduer.Debt - DEFAULT_DISCOUNT
 		c.resDiscount = 0
 	}
 	return nil
