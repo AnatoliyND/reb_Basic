@@ -7,7 +7,7 @@ import (
 )
 
 func startTransaction(debtor internal.Debtor) error {
-	return debtor.CalcDiscount()
+	return debtor.WrOffDebt()
 }
 
 func startTransactionDynamic(d interface{}) error {
@@ -15,13 +15,20 @@ func startTransactionDynamic(d interface{}) error {
 	if !ok {
 		return errors.New("Incorrect type")
 	}
-	err := discount.CalcDiscount()
+	err := discount.WrOffDebt()
 	return err
 }
 
 func main() {
-	cust := internal.NewCustomer("Dmitry", 23, 10000, 1000, true)
-	//cust2 := internal.NewCustomer("Dmitry", 23, 10000, 1000, false)
+
+	cust := internal.NewCustomer("Dmitry", 23 /* 10000, 1000, */, true)
+
+	custDisc := &internal.Overduer{
+		Balans: 10000,
+		Debt:   1000,
+	}
+
+	cust.Overduer = custDisc
 
 	price := 750
 
