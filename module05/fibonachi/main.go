@@ -2,20 +2,21 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 )
 
 func main() {
+	runtime.GOMAXPROCS(1)
 	go spinner(100 * time.Millisecond)
-	/* 	n := 44
-	   	fibN := fib(n)
-	   	fmt.Printf("\rFibonacci(%d) = %d\n", n, fibN) */
-	n := 44
+	n := 32
 	go fib(n)
-	n2 := 45
-	go fib(n2)
+	go fib(n + 1)
+
+	time.Sleep(1 * time.Second)
+
 	fmt.Printf("\rFibonacci(%d) = %d\n", n, fib(n))
-	fmt.Printf("\rFibonacci(%d) = %d\n", n2, fib(n2))
+	fmt.Printf("\rFibonacci(%d) = %d\n", n+1, fib(n+1))
 }
 
 func spinner(delay time.Duration) {
@@ -31,5 +32,7 @@ func fib(x int) int {
 	if x < 2 {
 		return x
 	}
+
 	return fib(x-1) + fib(x-2)
+
 }
