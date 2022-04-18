@@ -1,12 +1,19 @@
 package main
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 type Cache struct {
+	sync.Mutex
 	storage map[string]int
 }
 
 func (c *Cache) Increase(key string, value int) {
+	c.Lock()
+	defer c.Unlock()
+	time.Sleep(1 * time.Millisecond)
 	c.storage[key] += value
 }
 
