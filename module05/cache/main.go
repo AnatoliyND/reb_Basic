@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -9,6 +10,16 @@ import (
 type Cache struct {
 	sync.RWMutex
 	storage map[string]int
+}
+
+type Semaphore interface {
+	Acquire() error
+	Release() error
+	Len() int
+}
+
+type semaphore struct {
+	chann chan int
 }
 
 const (
@@ -41,26 +52,84 @@ func (c *Cache) Remove(key string) {
 	delete(c.storage, key)
 }
 
+func (s *semaphore) Len() int {
+	return len(s.chann)
+}
+
+func NewSemaphore(tickets int) Semaphore {
+	return &semaphore{chann: make(chan int, tickets)}
+}
+
+var R int
+
+func (s *semaphore) Acquire() error {
+	R += step
+	select {
+	case s.chann <- R:
+		return nil
+	case <-time.After(1500 * time.Millisecond):
+		return errors.New("file releaseA")
+	}
+
+}
+
+func (s *semaphore) Release() error {
+
+	select {
+	case Cache1.storage[k1] = <-s.chann:
+		//case Cache1.storage[k1] = <-s.chann:
+		return nil
+	case <-time.After(500 * time.Millisecond):
+		return errors.New("file releaseR")
+	}
+}
+
+func runTicket(i int, s Semaphore) {
+	defer func() {
+		if err := s.Release(); err != nil {
+			fmt.Printf("error: %s\n", err)
+		}
+	}()
+	time.Sleep(1000 * time.Millisecond)
+	fmt.Println("Get:", step*i)
+}
+
+var Cache1 = Cache{storage: make(map[string]int)}
+
 func main() {
-	cache := Cache{storage: make(map[string]int)}
-	var wg sync.WaitGroup
+
+	s := NewSemaphore(3)
 	for i := 0; i < 10; i++ {
-		wg.Add(1) //добавляем по 1 на каждую горутину
+		if err := s.Acquire(); err != nil {
+			fmt.Printf("error: %s\n", err)
+		}
+
+		go runTicket(i, s)
+	}
+	for s.Len() > 0 {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	fmt.Println("k1 :", Cache1.Get(k1))
+
+}
+
+/* func main() {
+	cache := Cache{storage: make(map[string]int)}
+	for i := 0; i < 10; i++ {
 		go func() {
-			defer wg.Done() //вызываем Done, когда горутина закончит выполнение
 			cache.Increase(k1, step)
 			//time.Sleep(100 * time.Millisecond)
 		}()
 	}
 	for i := 0; i < 10; i++ {
-		i := i //copy variable
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		go func(i int) {
 			cache.Set(k1, step*i)
 			//time.Sleep(100 * time.Millisecond)
-		}()
+		}(i)
 	}
-	wg.Wait() //ждем окончания работы всех горутин
+
 	fmt.Println(cache.Get(k1))
+
 }
+*/
