@@ -18,5 +18,5 @@ func TestReversInt(t *testing.T) {
 
 	res2, err := ReverseInt(0)
 	req.NoError(err)
-	req.Equal(0, res2)
+	req.Equal(0, res2) //	require.Equal(t, 0, res2)
 }
